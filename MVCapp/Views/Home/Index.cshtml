@@ -2,7 +2,19 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="text-center d-flex justify-content-center align-items-center align-middle" style="padding-top: 400px;">
+    @if (ViewData["Name"] == null)
+    {
+        <form id="user-form" class="d-flex" method="GET">
+            <input class="form-control" type="text" id="user-form-name" name="name" placeholder="Ім'я" autocomplete="off" />
+            <input class="btn btn-primary ms-1" type="submit" id="user-form-submit" value="Надіслати" />
+        </form>
+    }
+    else
+    {
+        <div class="d-flex flex-column align-items-center">
+            <h1>Hello, @ViewData["Name"]!</h1>      
+            <a class="btn btn-warning mt-3" asp-controller="Home" asp-action="Index">Повернутися на головну</a>
+        </div>
+    }
 </div>
