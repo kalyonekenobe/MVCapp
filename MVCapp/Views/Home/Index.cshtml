@@ -1,9 +1,10 @@
-﻿@{
+﻿@model MVCapp.ViewModels.UserData
+@{
     ViewData["Title"] = "Home Page";
 }
 
 <div class="text-center d-flex justify-content-center align-items-center align-middle" style="padding-top: 400px;">
-    @if (ViewData["Name"] == null)
+    @if (Model.Name == null)
     {
         <form id="user-form" class="d-flex" method="GET">
             <input class="form-control" type="text" id="user-form-name" name="name" placeholder="Ім'я" autocomplete="off" />
@@ -13,7 +14,7 @@
     else
     {
         <div class="d-flex flex-column align-items-center">
-            <h1>Hello, @ViewData["Name"]!</h1>      
+            <h1>Hello, @Model.Name!</h1>      
             <a class="btn btn-warning mt-3" asp-controller="Home" asp-action="Index">Повернутися на головну</a>
         </div>
     }

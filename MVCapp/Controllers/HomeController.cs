@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MVCapp.Models;
+using MVCapp.ViewModels;
 using System.Diagnostics;
 
 namespace MVCapp.Controllers
@@ -15,8 +16,11 @@ namespace MVCapp.Controllers
 
 		public IActionResult Index(string name)
 		{
-			ViewData["Name"] = name;
-			return View();
+			UserData data = new UserData()
+			{
+				Name = name
+			};
+			return View(data);
 		}
 
 		[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
