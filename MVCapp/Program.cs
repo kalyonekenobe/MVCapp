@@ -1,18 +1,7 @@
-using Microsoft.AspNetCore.Mvc.Razor;
-using MVCapp.Custom;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews(options =>
-{
-	options.Conventions.Add(new RouteNamingConvention());
-});
-
-builder.Services.Configure<RazorViewEngineOptions>(options =>
-{
-	options.ViewLocationExpanders.Add(new ViewLocationExpander());
-});
+builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 

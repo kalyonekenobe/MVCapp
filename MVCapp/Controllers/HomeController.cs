@@ -5,11 +5,11 @@ using System.Diagnostics;
 
 namespace MVCapp.Controllers
 {
-	public class HomeControllerSasha : Controller
+	public class HomeController : Controller
 	{
-		private readonly ILogger<HomeControllerSasha> _logger;
+		private readonly ILogger<HomeController> _logger;
 
-		public HomeControllerSasha(ILogger<HomeControllerSasha> logger)
+		public HomeController(ILogger<HomeController> logger)
 		{
 			_logger = logger;
 		}
