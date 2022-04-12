@@ -1,6 +1,6 @@
 ﻿namespace MVCapp.ViewModels
 {
-	public class UserData
+	public class VisitorViewModel
 	{
 		public string? Name { get; set; }
 	}

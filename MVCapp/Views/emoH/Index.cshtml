@@ -1,0 +1,11 @@
+﻿@model MVCapp.ViewModels.VisitorViewModel
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center d-flex justify-content-center align-items-center align-middle" style="padding-top: 400px;">
+    <form id="user-form" class="d-flex" method="GET">
+        <input class="form-control" type="text" id="user-form-name" name="name" placeholder="Ім'я" autocomplete="off" />
+        <input class="btn btn-primary ms-1" type="submit" id="user-form-submit" value="Надіслати" />
+    </form>
+</div>

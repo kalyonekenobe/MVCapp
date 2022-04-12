@@ -5,22 +5,23 @@ using System.Diagnostics;
 
 namespace MVCapp.Controllers
 {
-	public class HomeController : Controller
+	public class HomeControllerSasha : Controller
 	{
-		private readonly ILogger<HomeController> _logger;
+		private readonly ILogger<HomeControllerSasha> _logger;
 
-		public HomeController(ILogger<HomeController> logger)
+		public HomeControllerSasha(ILogger<HomeControllerSasha> logger)
 		{
 			_logger = logger;
 		}
 
+		[HttpGet]
 		public IActionResult Index(string name)
 		{
-			UserData data = new UserData()
+			VisitorViewModel data = new VisitorViewModel()
 			{
 				Name = name
 			};
-			return View(data);
+			return View(data.Name == null ? "Index" : "Welcome", data);
 		}
 
 		[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
