@@ -1,7 +1,4 @@
-USE master;
-GO
-IF (DB_ID('ToDoListDB') is null)
-	CREATE DATABASE ToDoListDB
+CREATE DATABASE ToDoListDB
 GO
 USE ToDoListDB;
 
@@ -9,7 +6,8 @@ DROP TABLE IF EXISTS Task
 
 DROP TABLE IF EXISTS Category
 
-CREATE TABLE Category (
+CREATE TABLE Category 
+(
 	
 	[CategoryId] INT PRIMARY KEY IDENTITY,
 	[Name] VARCHAR(255) NOT NULL UNIQUE
