@@ -1,0 +1,35 @@
+﻿@using MVCapp.ViewModels
+@using MVCapp.DBModels
+@model MVCapp.ViewModels.SidebarViewModel
+
+<aside class="sidebar">
+    @foreach (KeyValuePair<string, SidebarSectionViewModel> sidebarSection in Model.SidebarSections)
+    {
+        <div class="list">
+            <div class="list-head">
+                <label class="list-name">@sidebarSection.Value.Name</label>
+                @if (sidebarSection.Key == "category")
+                {
+                    <span class="sticker">@(sidebarSection.Value.Items.Count - 1)</span>
+                }
+            </div>
+            <div class="list-body">
+                @foreach (KeyValuePair<string, SidebarSectionItemViewModel> sectionItem in sidebarSection.Value.Items)
+                {
+                    <div class="list-item @sectionItem.Value.ClassName">
+                        <a asp-all-route-data="@sectionItem.Value.QueryString">
+                            <i class="@sectionItem.Value.IconClassList"></i>
+                            @sectionItem.Value.Name
+                        </a>
+                    </div>
+                }
+            </div>
+            <div class="list-tail">
+                @if (sidebarSection.Key == "category")
+                {
+                    <a class="button button-light">See more</a>
+                }
+            </div>
+        </div>
+    }
+</aside>

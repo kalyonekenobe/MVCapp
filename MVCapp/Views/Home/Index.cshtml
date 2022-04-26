@@ -1,11 +1,54 @@
-﻿@model MVCapp.ViewModels.VisitorViewModel
-@{
-    ViewData["Title"] = "Home Page";
-}
+﻿@using MVCapp.ViewModels
+@using MVCapp.DBModels
+@model MVCapp.ViewModels.HomePageViewModel
 
-<div class="text-center d-flex justify-content-center align-items-center align-middle" style="padding-top: 400px;">
-    <form id="user-form" class="d-flex" method="GET">
-        <input class="form-control" type="text" id="user-form-name" name="name" placeholder="Ім'я" autocomplete="off" />
-        <input class="btn btn-primary ms-1" type="submit" id="user-form-submit" value="Надіслати" />
-    </form>
+<div class="row">
+    <div class="col-12">
+        <div class="breadcrumbs-container">
+            <div class="breadcrumbs">
+                <a class="logo" href="/">TODO Application</a>
+                <i class="fa-solid fa-caret-right"></i>
+                <a href="/">Task list</a>
+            </div>
+            <a class="button button-primary" asp-action="Create">Create new task</a>
+        </div>
+    </div>
+    <div class="col-12 col-sm-5 col-md-4 col-lg-3">
+        @await Html.PartialAsync("../Shared/_Sidebar.cshtml", Model.Sidebar)
+    </div>
+    <div class="col-12 col-sm-7 col-md-8 col-lg-9">
+        <div class="task-list">
+            @foreach (MVCapp.DBModels.Task task in Model.Tasks)
+            {
+                <div class="task-list-item">
+                    <div class="options">
+                        <div class="info">
+                            @{
+                                string status = (task.Expired) ? "Expired" : "Current";
+                            }
+                            <span class="status @status.ToLower()">
+                                @status
+                            </span>
+                            <span class="due-to">Due to: <time datetime="@task.Deadline">@task.Deadline.ToString("dd.MM.yyyy HH:mm")</time></span>
+                        </div>
+                        <div class="buttons">
+                            <a class="category" asp-all-route-data="@Model.GetCategorySectionItemURL(task.Category.Name)">
+                                <i class="@task.Category!.IconClassList button-icon-left"></i>
+                                @task.Category.Name
+                            </a>
+                            <a class="button button-warning" asp-action="Edit" asp-route-id="@task.Id">
+                                <i class="fa-solid fa-pen-clip"></i>
+                            </a>
+                            <a class="button button-danger" asp-action="Delete" asp-route-id="@task.Id">
+                                <i class="fa-solid fa-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="content">
+                        <p>@task.Content</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
 </div>
