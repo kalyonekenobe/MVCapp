@@ -26,16 +26,28 @@ namespace MVCapp.Controllers
 		}
 
 		[HttpGet]
-		public IActionResult Index(string? view, string? order, string? category)
+		public IActionResult Index(string? status, string? order)
 		{
-			SidebarViewModel sidebar = GetSidebar(view, order, category);
+			SidebarViewModel sidebar = new SidebarViewModel(_categoryRepository, HttpContext.Request.Query);
 			IQueryCollection query = HttpContext.Request.Query;
 
-			List<DBModels.Task> tasks = GetTaskList(view, order, category);
+			List<DBModels.Task> tasks = GetTaskList(status, order, null);
 
 			HomePageViewModel context = new HomePageViewModel(query, sidebar, tasks);
 
 			return View("Index", context);
+		}
+
+		[HttpGet]
+		[Route("Home/Categories/{categoryName?}/")]
+		public IActionResult Categories(string? categoryName, string status, string order)
+		{
+			IQueryCollection query = HttpContext.Request.Query;
+			List<DBModels.Task> tasks = GetTaskList(status, order, categoryName);
+			SidebarViewModel sidebar = new SidebarViewModel(_categoryRepository, query);
+
+			HomePageViewModel viewModel = new HomePageViewModel(query, sidebar, tasks);
+			return View("Index", viewModel);
 		}
 
 		[HttpGet]
@@ -57,7 +69,6 @@ namespace MVCapp.Controllers
 			{
 				CreateUpdateTaskViewModel viewModel = new CreateUpdateTaskViewModel(_categoryRepository.Categories.ToList());
 				return View(viewModel);
-
 			}
 		}
 
@@ -102,28 +113,33 @@ namespace MVCapp.Controllers
 			return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
 		}
 
-		private List<DBModels.Task> GetTaskList(string? view, string? order, string? category)
+		private List<DBModels.Task> GetTaskList(string? status, string? order, string? category)
 		{
 			List<DBModels.Task> tasks = (from t in _taskRepository.Tasks.ToList()
-						join c in _categoryRepository.Categories.ToList()
-						on t.CategoryId equals c.Id
-						select new DBModels.Task
-						{
-							Id = t.Id,
-							Content = t.Content,
-							Deadline = t.Deadline,
-							Expired = t.Expired,
-							Category = new Category
-							{
-								Id = c.Id,
-								Name = c.Name,
-								IconClassList = c.IconClassList
-							},
-						}).ToList();
-			if (category != null) tasks = tasks.Where(t => t.Category.Name == category).ToList();
-			switch (view)
+										 join c in _categoryRepository.Categories.ToList()
+										 on t.CategoryId equals c.Id
+										 select new DBModels.Task
+										 {
+										     Id = t.Id,
+											 Content = t.Content,
+											 Deadline = t.Deadline,
+											 Expired = t.Expired,
+											 Category = new Category
+											 {
+												 Id = c.Id,
+												 Name = c.Name,
+												 IconClassList = c.IconClassList
+											 },
+										 }).ToList();
+
+			if (category != null)
 			{
-				case "current":
+				tasks = tasks.Where(t => t.Category?.Name == category).ToList();
+			}
+
+			switch (status)
+			{
+				case "active":
 					tasks = tasks.Where(t => t.Deadline >= DateTime.Now).ToList();
 					break;
 
@@ -131,56 +147,20 @@ namespace MVCapp.Controllers
 					tasks = tasks.Where(t => t.Deadline < DateTime.Now).ToList();
 					break;
 			}
+
 			switch (order)
 			{
 				case "content":
 					tasks = tasks.OrderBy(t => t.Content).ToList();
 					break;
 
-				case "datetime":
-					tasks = tasks.OrderByDescending(t => t.Deadline).ToList();
-					break;
-				
-				default:
-					tasks = tasks.OrderByDescending(t => t.Deadline).ToList();
+				case "deadline": default:
+					List<DBModels.Task> sortedTasks = tasks.Where(t => !t.Expired).OrderBy(t => t.Deadline).ToList();
+					sortedTasks.AddRange(tasks.Where(t => t.Expired).OrderBy(t => t.Deadline).ToList());
+					tasks = sortedTasks;
 					break;
 			}
 			return tasks;
-		}
-
-		private SidebarViewModel GetSidebar(string? view, string? order, string? category)
-		{
-			IQueryCollection query = HttpContext.Request.Query;
-			Dictionary<string, SidebarSectionItemViewModel> categoriesSectionItems = new Dictionary<string, SidebarSectionItemViewModel>();
-
-			List<Category> categories = _categoryRepository.Categories.ToList();
-
-			categoriesSectionItems.Add("All", SidebarSectionItemViewModel.CategoriesSectionItemAll);
-			categoriesSectionItems["All"].ClassName = category ?? "active";
-
-			foreach (Category item in categories)
-			{
-				categoriesSectionItems.Add(item.Name, new SidebarSectionItemViewModel(item.Name, item.IconClassList));
-			}
-
-			SidebarSectionViewModel viewTasksSection = SidebarSectionViewModel.ViewTasksSection();
-			SidebarSectionViewModel orderBySection = SidebarSectionViewModel.OrderBySection();
-			SidebarSectionViewModel categoriesSection = new SidebarSectionViewModel("Categories", "All", categoriesSectionItems);
-
-			viewTasksSection.Items[view ?? viewTasksSection.SectionItemDefaultName].ClassName = "active";
-			orderBySection.Items[order ?? orderBySection.SectionItemDefaultName].ClassName = "active";
-			categoriesSection.Items[category ?? categoriesSection.SectionItemDefaultName].ClassName = "active";
-
-			Dictionary<string, SidebarSectionViewModel> sidebarSections = new Dictionary<string, SidebarSectionViewModel>();
-
-			sidebarSections.Add("view", viewTasksSection);
-			sidebarSections.Add("order", orderBySection);
-			sidebarSections.Add("category", categoriesSection);
-
-			SidebarViewModel sidebar = new SidebarViewModel(sidebarSections);
-			sidebar.SetItemsQueryStrings(query);
-
-			return sidebar;
 		}
 	}
 }

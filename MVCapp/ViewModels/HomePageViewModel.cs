@@ -1,4 +1,5 @@
-﻿using Task = MVCapp.DBModels.Task;
+﻿using Microsoft.Extensions.Primitives;
+using Task = MVCapp.DBModels.Task;
 
 namespace MVCapp.ViewModels
 {
@@ -8,27 +9,30 @@ namespace MVCapp.ViewModels
 
 		public List<Task> Tasks { get; set; }
 
-		public IQueryCollection URL { get; set; }
+		public Dictionary<string, string> QueryCollection { get; set; }
 
-		public HomePageViewModel(IQueryCollection url, SidebarViewModel sidebar, List<Task> tasks)
+		public HomePageViewModel(IQueryCollection query, SidebarViewModel sidebar, List<Task> tasks)
 		{
-			URL = url;
+			QueryCollection = GetQueryCollection(query);
 			Sidebar = sidebar;
 			Tasks = tasks;
 		}
 
-		public Dictionary<string, string> GetCategorySectionItemURL(string categoryName)
+		public Dictionary<string, string> GetQueryCollection(IQueryCollection query)
 		{
-			Dictionary<string, string> categoryHref = new Dictionary<string, string>();
-			categoryHref = new Dictionary<string, string>();
-			foreach (KeyValuePair<string, SidebarSectionViewModel> sidebarSectionItem in Sidebar.SidebarSections)
+			Dictionary<string, string> queryCollection = new Dictionary<string, string>();
+			foreach (KeyValuePair<string, StringValues> queryItem in query)
 			{
-				if (URL[sidebarSectionItem.Key].ToString() != sidebarSectionItem.Value.SectionItemDefaultName)
-				{
-					categoryHref.Add(sidebarSectionItem.Key, (sidebarSectionItem.Key == "category") ? categoryName : URL[sidebarSectionItem.Key].ToString());
-				}
+				queryCollection[queryItem.Key] = queryItem.Value;
 			}
-			return categoryHref;
+			return queryCollection;
+		}
+
+		public Dictionary<string, string> UpdateQueryCollection(string queryItemValue, string queryItemName)
+		{
+			Dictionary<string, string> queryCollection = new Dictionary<string, string>(QueryCollection);
+			queryCollection[queryItemName] = queryItemValue;
+			return queryCollection;
 		}
 	}
 }

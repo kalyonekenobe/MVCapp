@@ -283,7 +283,7 @@ body::-webkit-scrollbar{
     background: #ff3b3c;
 }
 
-.task-list-item .status.current {
+.task-list-item .status.active {
     background: #198754;
 }
 

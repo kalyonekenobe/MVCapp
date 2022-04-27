@@ -3,33 +3,76 @@
 @model MVCapp.ViewModels.SidebarViewModel
 
 <aside class="sidebar">
-    @foreach (KeyValuePair<string, SidebarSectionViewModel> sidebarSection in Model.SidebarSections)
-    {
-        <div class="list">
-            <div class="list-head">
-                <label class="list-name">@sidebarSection.Value.Name</label>
-                @if (sidebarSection.Key == "category")
-                {
-                    <span class="sticker">@(sidebarSection.Value.Items.Count - 1)</span>
-                }
+    <div class="list">
+        <div class="list-head">
+            <label class="list-name">Tasks status</label>
+        </div>
+        <div class="list-body">
+            <div class="list-item @Model.IsActive(string.Empty, "status")">
+                <a asp-all-route-data="@Model.UpdateQueryCollection(string.Empty, "status")">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    All
+                </a>
             </div>
-            <div class="list-body">
-                @foreach (KeyValuePair<string, SidebarSectionItemViewModel> sectionItem in sidebarSection.Value.Items)
-                {
-                    <div class="list-item @sectionItem.Value.ClassName">
-                        <a asp-all-route-data="@sectionItem.Value.QueryString">
-                            <i class="@sectionItem.Value.IconClassList"></i>
-                            @sectionItem.Value.Name
-                        </a>
-                    </div>
-                }
+            <div class="list-item @Model.IsActive("active", "status")">
+                <a asp-all-route-data="@Model.UpdateQueryCollection("active", "status")">
+                    <i class="fa-solid fa-calendar-check"></i>
+                    Active
+                </a>
             </div>
-            <div class="list-tail">
-                @if (sidebarSection.Key == "category")
-                {
-                    <a class="button button-light">See more</a>
-                }
+            <div class="list-item @Model.IsActive("expired", "status")">
+                <a asp-all-route-data="@Model.UpdateQueryCollection("expired", "status")">
+                    <i class="fa-solid fa-calendar-xmark"></i>
+                    Expired
+                </a>
             </div>
         </div>
-    }
+        <div class="list-tail"></div>
+    </div>
+    <div class="list">
+        <div class="list-head">
+            <label class="list-name">Sort by</label>
+        </div>
+        <div class="list-body">
+            <div class="list-item @Model.IsActive(string.Empty, "order")">
+                <a asp-all-route-data="@Model.UpdateQueryCollection(string.Empty, "order")">
+                    <i class="fa-solid fa-stopwatch"></i>
+                    Deadline
+                </a>
+            </div>
+            <div class="list-item @Model.IsActive("content", "order")">
+                <a asp-all-route-data="@Model.UpdateQueryCollection("content", "order")">
+                    <i class="fa-solid fa-arrow-down-a-z"></i>
+                    Alphabet
+                </a>
+            </div>
+        </div>
+        <div class="list-tail"></div>
+    </div>
+    <div class="list">
+        <div class="list-head">
+            <label class="list-name">Categories</label>
+            <span class="sticker">@Model.Categories.Count</span>
+        </div>
+        <div class="list-body">
+            <div class="list-item @Model.IsCategoryActive(null, (string?) ViewContext.RouteData.Values["categoryName"])">
+                <a asp-action="Index" asp-all-route-data="@Model.UpdateQueryCollection(string.Empty, "categoryName")">
+                    <i class="fa-solid fa-globe"></i>
+                    All
+                </a>
+            </div>
+            @foreach (Category category in Model.Categories)
+            {
+                <div class="list-item @Model.IsCategoryActive(category.Name, (string?) ViewContext.RouteData.Values["categoryName"])">
+                    <a asp-action="Categories" asp-all-route-data="@Model.UpdateQueryCollection(category.Name, "categoryName")">
+                        <i class="@category.IconClassList"></i>
+                        @category.Name
+                    </a>
+                </div>
+            }
+        </div>
+        <div class="list-tail">
+            <a class="button button-light">See more</a>
+        </div>
+    </div>
 </aside>

@@ -7,6 +7,14 @@
 		public TaskRepository(ApplicationDBContext context)
 		{
 			_context = context;
+			foreach (DBModels.Task task in _context.Tasks)
+			{
+				if (task.Deadline < DateTime.Now)
+				{
+					task.Expired = true;
+				}
+			}
+			_context.SaveChanges();
 		}
 
 		public IEnumerable<DBModels.Task> Tasks => _context.Tasks;

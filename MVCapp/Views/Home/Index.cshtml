@@ -23,16 +23,14 @@
                 <div class="task-list-item">
                     <div class="options">
                         <div class="info">
-                            @{
-                                string status = (task.Expired) ? "Expired" : "Current";
-                            }
+                            @{ string status = (task.Expired) ? "Expired" : "Active"; }
                             <span class="status @status.ToLower()">
                                 @status
                             </span>
                             <span class="due-to">Due to: <time datetime="@task.Deadline">@task.Deadline.ToString("dd.MM.yyyy HH:mm")</time></span>
                         </div>
                         <div class="buttons">
-                            <a class="category" asp-all-route-data="@Model.GetCategorySectionItemURL(task.Category.Name)">
+                            <a class="category" asp-action="Categories" asp-all-route-data="@Model.UpdateQueryCollection(task.Category.Name, "categoryName")">
                                 <i class="@task.Category!.IconClassList button-icon-left"></i>
                                 @task.Category.Name
                             </a>

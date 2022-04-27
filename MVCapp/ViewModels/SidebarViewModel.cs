@@ -1,30 +1,50 @@
-﻿namespace MVCapp.ViewModels
+﻿using Microsoft.Extensions.Primitives;
+using MVCapp.DBModels;
+using MVCapp.Models;
+
+namespace MVCapp.ViewModels
 {
 	public class SidebarViewModel
 	{
-		public Dictionary<string, SidebarSectionViewModel> SidebarSections;
+		private readonly string DefaultActiveSidebarItemName = "active";
 
-		public SidebarViewModel(Dictionary<string, SidebarSectionViewModel> sidebarSections)
+		public List<Category> Categories { get; set; }
+
+		public Dictionary<string, string> QueryCollection { get; set; }
+
+		public SidebarViewModel(ICategoryRepository repository, IQueryCollection query)
 		{
-			SidebarSections = sidebarSections;
+			Categories = repository.Categories.ToList();
+			QueryCollection = GetQueryCollection(query);
 		}
 
-		public void SetItemsQueryStrings(IQueryCollection query)
+		public string IsActive(string sidebarSectionItemName, string sidebarSectionName)
 		{
-			foreach (KeyValuePair<string, SidebarSectionViewModel> section in SidebarSections)
+			if (QueryCollection.ContainsKey(sidebarSectionName))
 			{
-				foreach (KeyValuePair<string, SidebarSectionItemViewModel> sectionItem in section.Value.Items)
-				{
-					sectionItem.Value.QueryString = new Dictionary<string, string>();
-					foreach (KeyValuePair<string, SidebarSectionViewModel> item in SidebarSections)
-					{
-						if (item.Key != section.Key)
-							sectionItem.Value.QueryString.Add(item.Key, query[item.Key].ToString());
-						else if (section.Value.SectionItemDefaultName != sectionItem.Key)
-							sectionItem.Value.QueryString.Add(section.Key, sectionItem.Key);
-					}
-				}
+				return (QueryCollection[sidebarSectionName] == sidebarSectionItemName) ? DefaultActiveSidebarItemName : string.Empty;
 			}
+			else
+				return (sidebarSectionItemName == string.Empty) ? DefaultActiveSidebarItemName : string.Empty;
+		}
+
+		public string IsCategoryActive(string? categoryName, string? selectedCategory) => (selectedCategory == categoryName) ? "active" : string.Empty;
+
+		public Dictionary<string, string> GetQueryCollection(IQueryCollection query)
+		{
+			Dictionary<string, string> queryCollection = new Dictionary<string, string>();
+			foreach (KeyValuePair<string, StringValues> queryItem in query)
+			{
+				queryCollection[queryItem.Key] = queryItem.Value;
+			}
+			return queryCollection;
+		}
+
+		public Dictionary<string, string> UpdateQueryCollection(string sidebarSectionItemName, string sidebarSectionName)
+		{
+			Dictionary<string, string> queryCollection = new Dictionary<string, string>(QueryCollection);
+			queryCollection[sidebarSectionName] = sidebarSectionItemName;
+			return queryCollection;
 		}
 	}
 }
