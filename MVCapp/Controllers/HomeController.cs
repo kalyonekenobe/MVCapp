@@ -31,7 +31,7 @@ namespace MVCapp.Controllers
 			SidebarViewModel sidebar = new SidebarViewModel(_categoryRepository, HttpContext.Request.Query);
 			IQueryCollection query = HttpContext.Request.Query;
 
-			List<DBModels.Task> tasks = GetTaskList(status, order, null);
+			List<DBModels.Task> tasks = _taskRepository.GetTaskList(status, order, null);
 
 			HomePageViewModel context = new HomePageViewModel(query, sidebar, tasks);
 
@@ -43,7 +43,7 @@ namespace MVCapp.Controllers
 		public IActionResult Categories(string? categoryName, string status, string order)
 		{
 			IQueryCollection query = HttpContext.Request.Query;
-			List<DBModels.Task> tasks = GetTaskList(status, order, categoryName);
+			List<DBModels.Task> tasks = _taskRepository.GetTaskList(status, order, categoryName);
 			SidebarViewModel sidebar = new SidebarViewModel(_categoryRepository, query);
 
 			HomePageViewModel viewModel = new HomePageViewModel(query, sidebar, tasks);
@@ -111,56 +111,6 @@ namespace MVCapp.Controllers
 		public IActionResult Error()
 		{
 			return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-		}
-
-		private List<DBModels.Task> GetTaskList(string? status, string? order, string? category)
-		{
-			List<DBModels.Task> tasks = (from t in _taskRepository.Tasks.ToList()
-										 join c in _categoryRepository.Categories.ToList()
-										 on t.CategoryId equals c.Id
-										 select new DBModels.Task
-										 {
-										     Id = t.Id,
-											 Content = t.Content,
-											 Deadline = t.Deadline,
-											 Expired = t.Expired,
-											 Category = new Category
-											 {
-												 Id = c.Id,
-												 Name = c.Name,
-												 IconClassList = c.IconClassList
-											 },
-										 }).ToList();
-
-			if (category != null)
-			{
-				tasks = tasks.Where(t => t.Category?.Name == category).ToList();
-			}
-
-			switch (status)
-			{
-				case "active":
-					tasks = tasks.Where(t => t.Deadline >= DateTime.Now).ToList();
-					break;
-
-				case "expired":
-					tasks = tasks.Where(t => t.Deadline < DateTime.Now).ToList();
-					break;
-			}
-
-			switch (order)
-			{
-				case "content":
-					tasks = tasks.OrderBy(t => t.Content).ToList();
-					break;
-
-				case "deadline": default:
-					List<DBModels.Task> sortedTasks = tasks.Where(t => !t.Expired).OrderBy(t => t.Deadline).ToList();
-					sortedTasks.AddRange(tasks.Where(t => t.Expired).OrderBy(t => t.Deadline).ToList());
-					tasks = sortedTasks;
-					break;
-			}
-			return tasks;
 		}
 	}
 }
